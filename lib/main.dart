@@ -21,8 +21,13 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => AuthController(AuthService(apiClient, sessionStorage))..bootstrap(),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProxyProvider<AuthController, PurchaseController>(
           create: (_) => PurchaseController(PurchaseService(apiClient)),
+          update: (_, authController, purchaseController) {
+            final controller = purchaseController ?? PurchaseController(PurchaseService(apiClient));
+            controller.bindSession(authController.user);
+            return controller;
+          },
         ),
       ],
       child: const SurtidorBoliviaMobileApp(),

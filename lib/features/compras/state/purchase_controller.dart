@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../auth/models/auth_user.dart';
 import '../models/fuel_catalog_item.dart';
 import '../models/purchase.dart';
 import '../services/purchase_service.dart';
@@ -16,6 +17,8 @@ class PurchaseController extends ChangeNotifier {
   bool _loadingHistory = false;
   bool _submitting = false;
   String? _errorMessage;
+  DateTime? _lastHistorySyncAt;
+  String? _sessionUserEmail;
 
   List<FuelCatalogItem> get catalog => _catalog;
   List<Purchase> get purchases => _purchases;
@@ -23,6 +26,16 @@ class PurchaseController extends ChangeNotifier {
   bool get loadingHistory => _loadingHistory;
   bool get submitting => _submitting;
   String? get errorMessage => _errorMessage;
+  DateTime? get lastHistorySyncAt => _lastHistorySyncAt;
+
+  void bindSession(AuthUser? user) {
+    final nextEmail = user?.email.trim().toLowerCase();
+    if (_sessionUserEmail == nextEmail) {
+      return;
+    }
+    _sessionUserEmail = nextEmail;
+    _clearHistoryState(notify: true);
+  }
 
   Future<void> loadCatalog({bool force = false}) async {
     if (_catalog.isNotEmpty && !force) {
@@ -46,12 +59,18 @@ class PurchaseController extends ChangeNotifier {
   }
 
   Future<void> loadPurchases() async {
+    if (_sessionUserEmail == null || _sessionUserEmail!.isEmpty) {
+      _clearHistoryState(notify: true);
+      return;
+    }
+
     _loadingHistory = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       _purchases = await _purchaseService.getPurchases();
+      _lastHistorySyncAt = DateTime.now();
     } on ApiException catch (error) {
       _errorMessage = error.message;
     } catch (_) {
@@ -78,6 +97,7 @@ class PurchaseController extends ChangeNotifier {
         observacion: observacion,
       );
       _purchases = [purchase, ..._purchases];
+      _lastHistorySyncAt = DateTime.now();
       return true;
     } on ApiException catch (error) {
       _errorMessage = error.message;
@@ -103,5 +123,16 @@ class PurchaseController extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  void _clearHistoryState({required bool notify}) {
+    _purchases = const [];
+    _loadingHistory = false;
+    _submitting = false;
+    _errorMessage = null;
+    _lastHistorySyncAt = null;
+    if (notify) {
+      notifyListeners();
+    }
   }
 }

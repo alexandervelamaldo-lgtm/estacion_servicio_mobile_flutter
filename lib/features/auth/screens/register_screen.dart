@@ -21,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _acceptedPrivacyPolicy = false;
 
   @override
   void dispose() {
@@ -42,6 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: _emailController.text,
       password: _passwordController.text,
       passwordConfirmacion: _confirmPasswordController.text,
+      aceptaPoliticaPrivacidad: _acceptedPrivacyPolicy,
     );
 
     if (!mounted) {
@@ -49,7 +51,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (success) {
-      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (_) => false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            authController.infoMessage ??
+                'Cuenta creada. Revisa tu correo para verificarla antes de iniciar sesión.',
+          ),
+        ),
+      );
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
       return;
     }
 
@@ -156,8 +166,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
+                      CheckboxListTile(
+                        value: _acceptedPrivacyPolicy,
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text(
+                          'Acepto el tratamiento de mis datos para crear y verificar mi cuenta.',
+                        ),
+                        subtitle: const Text(
+                          'Usamos tu nombre y correo para autenticarte, auditar el registro y enviarte la verificación.',
+                        ),
+                        onChanged: (value) {
+                          setState(() => _acceptedPrivacyPolicy = value ?? false);
+                        },
+                      ),
+                      if (!_acceptedPrivacyPolicy)
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Text(
+                              'Debes aceptar la política de privacidad para continuar.',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: authController.submitting ? null : _submit,
+                        onPressed: authController.submitting || !_acceptedPrivacyPolicy ? null : _submit,
                         child: authController.submitting
                             ? const SizedBox(
                                 width: 24,

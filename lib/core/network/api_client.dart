@@ -112,9 +112,19 @@ class ApiClient {
       throw ApiException('La respuesta del servidor llegó vacía.', statusCode: response.statusCode);
     }
 
+    final contentType = response.headers['content-type'] ?? '';
+    final isJsonResponse = contentType.contains('application/json');
+    if (!isJsonResponse) {
+      final url = _uri(retryPath).toString();
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        throw ApiException('Respuesta inesperada del servidor (no es JSON) desde $url.', statusCode: response.statusCode);
+      }
+      throw ApiException('Solicitud fallida (HTTP ${response.statusCode}) en $url.', statusCode: response.statusCode);
+    }
+
     dynamic decoded;
     try {
-      decoded = jsonDecode(response.body);
+      decoded = jsonDecode(utf8.decode(response.bodyBytes));
     } on FormatException {
       final statusLabel = response.statusCode.toString();
       throw ApiException('Respuesta del servidor con formato inesperado (HTTP $statusLabel).', statusCode: response.statusCode);

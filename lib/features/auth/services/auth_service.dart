@@ -14,6 +14,18 @@ class LoginResult {
   final String refreshToken;
 }
 
+class RegisterResult {
+  const RegisterResult({
+    required this.message,
+    required this.verificationRequired,
+    this.verificationUrl,
+  });
+
+  final String message;
+  final bool verificationRequired;
+  final String? verificationUrl;
+}
+
 class AuthService {
   AuthService(this._apiClient, this._sessionStorage);
 
@@ -36,23 +48,33 @@ class AuthService {
     return _buildLoginResult(response);
   }
 
-  Future<LoginResult> register({
+  Future<RegisterResult> register({
     required String nombre,
     required String email,
     required String password,
     required String passwordConfirmacion,
+    required bool aceptaPoliticaPrivacidad,
   }) async {
-    await _apiClient.post(
+    final response = await _apiClient.post(
       '/auth/register/',
       body: {
         'nombre': nombre.trim(),
         'email': email.trim().toLowerCase(),
         'password': password,
         'password_confirmacion': passwordConfirmacion,
+        'acepta_politica_privacidad': aceptaPoliticaPrivacidad,
       },
     );
 
-    return login(email: email, password: password);
+    if (response is! Map<String, dynamic>) {
+      throw ApiException('Respuesta del servidor inválida.');
+    }
+
+    return RegisterResult(
+      message: response['mensaje'] as String? ?? 'Cuenta creada correctamente.',
+      verificationRequired: response['verification_required'] as bool? ?? false,
+      verificationUrl: response['verification_url'] as String?,
+    );
   }
 
   Future<void> persistSession(LoginResult result) async {

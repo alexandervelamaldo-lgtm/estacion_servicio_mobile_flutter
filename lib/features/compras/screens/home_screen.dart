@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,12 +18,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Timer? _catalogRefreshTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PurchaseController>().loadCatalog();
     });
+    _catalogRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) {
+        return;
+      }
+      final controller = context.read<PurchaseController>();
+      if (!controller.loadingCatalog) {
+        controller.loadCatalog(force: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _catalogRefreshTimer?.cancel();
+    super.dispose();
   }
 
   @override
