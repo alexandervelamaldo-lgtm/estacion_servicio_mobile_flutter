@@ -14,11 +14,13 @@ class AuthController extends ChangeNotifier {
   bool _loading = true;
   bool _submitting = false;
   String? _errorMessage;
+  String? _infoMessage;
 
   AuthUser? get user => _user;
   bool get loading => _loading;
   bool get submitting => _submitting;
   String? get errorMessage => _errorMessage;
+  String? get infoMessage => _infoMessage;
   bool get isAuthenticated => _user != null;
 
   Future<void> bootstrap() async {
@@ -52,6 +54,7 @@ class AuthController extends ChangeNotifier {
     required String email,
     required String password,
     required String passwordConfirmacion,
+    required bool aceptaPoliticaPrivacidad,
   }) async {
     return _runAuthAction(() async {
       final result = await _authService.register(
@@ -59,9 +62,9 @@ class AuthController extends ChangeNotifier {
         email: email,
         password: password,
         passwordConfirmacion: passwordConfirmacion,
+        aceptaPoliticaPrivacidad: aceptaPoliticaPrivacidad,
       );
-      await _authService.persistSession(result);
-      _user = result.user;
+      _infoMessage = result.message;
     });
   }
 
@@ -78,12 +81,14 @@ class AuthController extends ChangeNotifier {
 
   void clearError() {
     _errorMessage = null;
+    _infoMessage = null;
     notifyListeners();
   }
 
   Future<bool> _runAuthAction(Future<void> Function() action) async {
     _submitting = true;
     _errorMessage = null;
+    _infoMessage = null;
     notifyListeners();
 
     try {

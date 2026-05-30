@@ -8,7 +8,7 @@ class PurchaseService {
   final ApiClient _apiClient;
 
   Future<List<FuelCatalogItem>> getCatalog() async {
-    final response = await _apiClient.get('/compras/catalogo/');
+    final response = await _apiClient.get('/precios-combustible/');
     final items = response as List<dynamic>;
     return items
         .map((item) => FuelCatalogItem.fromJson(item as Map<String, dynamic>))

@@ -1,8 +1,91 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains logs, task runner configuration, and
+# local debugging variables.
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.idea/
-.vscode/
-build/
-android/.gradle/
-android/.kotlin/
+.pub-cache/
+.pub/
+/build/
+
+# Web related
+lib/generated_plugin_registrant.dart
+
+# Android related
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/.kotlin
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+
+# iOS/macOS related
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*.-pbxuser
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Windows related
+**/windows/**/*.exe
+**/windows/**/*.pdb
+**/windows/**/*.ilk
+**/windows/**/*.exp
+**/windows/**/*.lib
+**/windows/**/AppPackages
+**/windows/**/BundleArtifacts
+**/windows/**/Package.StoreAssociation.xml
+**/windows/**/_pkginfo.txt
+**/windows/flutter/ephemeral/
+
+# Linux related
+**/linux/**/CMakeCache.txt
+**/linux/**/CMakeFiles
+**/linux/**/Makefile
+**/linux/**/cmake_install.cmake
+**/linux/flutter/ephemeral/
+
+# macOS related
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral/
+**/macos/Runner/Configs/AppInfo.xcconfig
+
+# Archivos de entorno y secretos
+.env
+*.env
