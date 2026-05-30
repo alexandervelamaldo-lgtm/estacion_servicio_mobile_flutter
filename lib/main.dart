@@ -10,6 +10,9 @@ import 'features/auth/services/auth_service.dart';
 import 'features/auth/state/auth_controller.dart';
 import 'features/compras/services/purchase_service.dart';
 import 'features/compras/state/purchase_controller.dart';
+import 'features/reportes/services/reportes_service.dart';
+import 'features/reportes/services/voice_service.dart';
+import 'features/reportes/state/reportes_controller.dart';
 
 void main() {
   final sessionStorage = SessionStorage();
@@ -28,6 +31,12 @@ void main() {
             controller.bindSession(authController.user);
             return controller;
           },
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReportesController(
+            ReportesService(apiClient),
+            VoiceService(apiClient),
+          ),
         ),
       ],
       child: const SurtidorBoliviaMobileApp(),

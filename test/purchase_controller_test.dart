@@ -34,7 +34,7 @@ void main() {
     isSuperuser: false,
   );
 
-  const ferPurchase = Purchase(
+  final ferPurchase = Purchase(
     id: 10,
     tipoCombustible: 'GASOLINA_PREMIUM',
     cantidad: 54.545,
@@ -51,7 +51,7 @@ void main() {
     final controller = PurchaseController(service);
 
     controller.bindSession(fer);
-    service.purchasesToReturn = const [ferPurchase];
+    service.purchasesToReturn = [ferPurchase];
     await controller.loadPurchases();
 
     expect(controller.purchases, hasLength(1));
@@ -69,7 +69,7 @@ void main() {
     final controller = PurchaseController(service);
 
     controller.bindSession(fer);
-    service.purchasesToReturn = const [ferPurchase];
+    service.purchasesToReturn = [ferPurchase];
     await controller.loadPurchases();
 
     expect(controller.purchases, hasLength(1));

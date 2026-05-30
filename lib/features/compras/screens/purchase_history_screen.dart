@@ -125,7 +125,7 @@ class _PurchaseHistoryScreenState extends State<PurchaseHistoryScreen>
                 ),
               )
             else if (controller.purchases.isEmpty)
-              SectionCard(
+              const SectionCard(
                 child: Text('Todavia no tienes compras registradas.'),
               )
             else

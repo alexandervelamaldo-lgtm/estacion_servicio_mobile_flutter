@@ -11,9 +11,11 @@ plugins {
 android {
     namespace = "com.surtidorbolivia.mobile"
     compileSdk = 36
-
+    ndkVersion = "28.2.13676358"
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
+        
         targetCompatibility = JavaVersion.VERSION_17
     }
 

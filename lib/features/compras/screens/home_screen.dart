@@ -129,6 +129,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.receipt_long_rounded),
                     label: const Text('Ver historial'),
                   ),
+                  if (user?.isStaff == true || user?.isSuperuser == true) ...[
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, AppRoutes.reportes),
+                      icon: const Icon(Icons.insights_rounded),
+                      label: const Text('Reportes e Inteligencia'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.secondary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
