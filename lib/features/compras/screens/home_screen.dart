@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.receipt_long_rounded),
                     label: const Text('Ver historial'),
                   ),
-                  if (user?.isStaff == true || user?.isSuperuser == true) ...[
+                  if (user?.isStaff == true || user?.isSuperuser == true || user?.rol == 'administrador' || user?.rol == 'gerente') ...[
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
                       onPressed: () => Navigator.pushNamed(context, AppRoutes.reportes),

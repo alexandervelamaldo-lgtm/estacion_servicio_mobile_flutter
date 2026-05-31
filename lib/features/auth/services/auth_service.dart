@@ -37,7 +37,7 @@ class AuthService {
     required String password,
   }) async {
     final response = await _apiClient.post(
-      '/auth/login/',
+        '/auth/login/',
       body: {'email': email.trim(), 'password': password},
     );
 
@@ -56,7 +56,7 @@ class AuthService {
     required bool aceptaPoliticaPrivacidad,
   }) async {
     final response = await _apiClient.post(
-      '/auth/register/',
+        '/auth/register/',
       body: {
         'nombre': nombre.trim(),
         'email': email.trim().toLowerCase(),
@@ -101,24 +101,24 @@ class AuthService {
   }
 
   LoginResult _buildLoginResult(Map<String, dynamic> json) {
-    final accessToken = json['access'];
-    final refreshToken = json['refresh'];
-    final user = json['user'];
+  final accessToken = json['access'];
+  final refreshToken = json['refresh'];
+  final userMap = json['user'];
 
-    if (accessToken is! String || accessToken.isEmpty) {
-      throw ApiException('No se recibió el token de acceso.');
-    }
-    if (refreshToken is! String || refreshToken.isEmpty) {
-      throw ApiException('No se recibió el token de refresh.');
-    }
-    if (user is! Map<String, dynamic>) {
-      throw ApiException('No se recibió la información del usuario.');
-    }
-
-    return LoginResult(
-      user: AuthUser.fromJson(user),
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    );
+  if (accessToken is! String || accessToken.isEmpty) {
+    throw ApiException('No se recibió el token de acceso.');
   }
+  if (refreshToken is! String || refreshToken.isEmpty) {
+    throw ApiException('No se recibió el token de refresh.');
+  }
+  if (userMap is! Map<String, dynamic>) {
+    throw ApiException('No se recibió la información del usuario.');
+  }
+
+  return LoginResult(
+    user: AuthUser.fromJson(userMap),
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+  );
+}
 }

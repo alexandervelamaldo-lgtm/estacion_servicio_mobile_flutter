@@ -13,6 +13,10 @@ import 'features/compras/state/purchase_controller.dart';
 import 'features/reportes/services/reportes_service.dart';
 import 'features/reportes/services/voice_service.dart';
 import 'features/reportes/state/reportes_controller.dart';
+import 'features/monitoreo/services/monitoreo_service.dart';
+import 'features/monitoreo/state/monitoreo_controller.dart';
+import 'features/inventario/services/inventario_service.dart';
+import 'features/inventario/state/inventario_controller.dart';
 
 void main() {
   final sessionStorage = SessionStorage();
@@ -22,12 +26,14 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthController(AuthService(apiClient, sessionStorage))..bootstrap(),
+          create: (_) => AuthController(AuthService(apiClient, sessionStorage))
+            ..bootstrap(),
         ),
         ChangeNotifierProxyProvider<AuthController, PurchaseController>(
           create: (_) => PurchaseController(PurchaseService(apiClient)),
           update: (_, authController, purchaseController) {
-            final controller = purchaseController ?? PurchaseController(PurchaseService(apiClient));
+            final controller = purchaseController ??
+                PurchaseController(PurchaseService(apiClient));
             controller.bindSession(authController.user);
             return controller;
           },
@@ -37,6 +43,13 @@ void main() {
             ReportesService(apiClient),
             VoiceService(apiClient),
           ),
+        ),
+        // Dentro de MultiProvider, agrega:
+        ChangeNotifierProvider(
+          create: (_) => MonitoreoController(MonitoreoService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => InventarioController(InventarioService(apiClient)),
         ),
       ],
       child: const SurtidorBoliviaMobileApp(),
