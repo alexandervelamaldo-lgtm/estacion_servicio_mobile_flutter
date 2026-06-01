@@ -23,20 +23,34 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _redirect() async {
-    final authController = context.read<AuthController>();
-    while (authController.loading) {
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-    }
-
-    if (!mounted) {
-      return;
-    }
-
-    Navigator.pushReplacementNamed(
-      context,
-      authController.isAuthenticated ? AppRoutes.home : AppRoutes.login,
-    );
+  final authController = context.read<AuthController>();
+  while (authController.loading) {
+    await Future<void>.delayed(const Duration(milliseconds: 120));
   }
+
+  if (!mounted) return;
+
+  if (!authController.isAuthenticated) {
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    return;
+  }
+
+  final user = authController.user;
+  final rol = user?.rol?.toLowerCase() ?? '';
+  final isSuperuser = user?.isSuperuser ?? false;
+
+  if (isSuperuser) {
+    await authController.logout();
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    return;
+  }
+
+  final route = (rol == 'administrador' || rol == 'gerente')
+      ? AppRoutes.adminDashboard
+      : AppRoutes.home;
+
+  Navigator.pushReplacementNamed(context, route);
+}
 
   @override
   Widget build(BuildContext context) {

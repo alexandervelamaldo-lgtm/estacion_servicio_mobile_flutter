@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import 'core/config/app_config.dart';
 import 'core/network/api_client.dart';
@@ -18,7 +19,14 @@ import 'features/monitoreo/state/monitoreo_controller.dart';
 import 'features/inventario/services/inventario_service.dart';
 import 'features/inventario/state/inventario_controller.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  OneSignal.initialize('c1ec0c61-fb3a-4c87-8667-1107a403ed11');
+await OneSignal.Notifications.requestPermission(true);
+final state = await OneSignal.Notifications.permission;
+print('OneSignal permission state: $state');
+
   final sessionStorage = SessionStorage();
   final apiClient = ApiClient(sessionStorage);
 

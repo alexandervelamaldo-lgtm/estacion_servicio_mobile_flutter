@@ -6,6 +6,9 @@ import '../../../shared/widgets/section_card.dart';
 import '../../auth/state/auth_controller.dart';
 import '../models/sucursal_monitoreo.dart';
 import '../state/monitoreo_controller.dart';
+import 'dart:async';
+// ...
+Timer? _timer;
 
 class MonitoreoScreen extends StatefulWidget {
   const MonitoreoScreen({super.key});
@@ -16,12 +19,22 @@ class MonitoreoScreen extends StatefulWidget {
 
 class _MonitoreoScreenState extends State<MonitoreoScreen> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MonitoreoController>().cargar();
-    });
-  }
+  @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    context.read<MonitoreoController>().cargar();
+  });
+  _timer = Timer.periodic(const Duration(seconds: 15), (_) {
+    if (mounted) context.read<MonitoreoController>().cargar();
+  });
+}
+
+@override
+void dispose() {
+  _timer?.cancel();
+  super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {

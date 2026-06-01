@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "597122156543",
+    "project_id": "surtidorbolivia",
+    "storage_bucket": "surtidorbolivia.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:597122156543:android:bb87f349ff4d84f85a89ca",
+        "android_client_info": {
+          "package_name": "com.surtidorbolivia.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd71nzoSDW4U-B82EY75oBRnl5oJRe1ts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
