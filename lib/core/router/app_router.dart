@@ -7,6 +7,9 @@ import '../../features/compras/screens/home_screen.dart';
 import '../../features/compras/screens/purchase_history_screen.dart';
 import '../../features/compras/screens/purchase_screen.dart';
 import '../../features/reportes/screens/reportes_screen.dart';
+import '../../features/dashboard/screens/admin_dashboard_screen.dart';
+import '../../features/monitoreo/screens/monitoreo_screen.dart';
+import '../../features/inventario/screens/inventario_screen.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -16,6 +19,9 @@ class AppRoutes {
   static const purchase = '/purchase';
   static const history = '/history';
   static const reportes = '/reportes';
+  static const monitoreo = '/monitoreo';
+  static const adminDashboard = '/dashboard';
+  static const inventario = '/inventario';
 }
 
 class AppRouter {
@@ -35,6 +41,12 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const PurchaseHistoryScreen());
       case AppRoutes.reportes:
         return MaterialPageRoute(builder: (_) => const ReportesScreen());
+      case AppRoutes.monitoreo:
+        return MaterialPageRoute(builder: (_) => const MonitoreoScreen());
+      case AppRoutes.adminDashboard:
+       return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
+       case AppRoutes.inventario:
+        return MaterialPageRoute(builder: (_) => const InventarioScreen());
       default:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
     }
