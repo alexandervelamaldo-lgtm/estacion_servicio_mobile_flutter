@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 enum AppEnvironment { development, production }
 
 class AppConfig {
@@ -31,7 +33,8 @@ class AppConfig {
       case AppEnvironment.production:
         return 'https://api.surtidorbolivia.com/api';
       case AppEnvironment.development:
-        return emulatorBaseUrl;
+        // En web (flutter run -d chrome) usar localhost en vez de 10.0.2.2
+        return kIsWeb ? 'http://localhost:8000/api' : emulatorBaseUrl;
     }
   }
 
