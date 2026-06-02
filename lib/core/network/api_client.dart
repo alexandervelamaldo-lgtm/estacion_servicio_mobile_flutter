@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -52,10 +51,8 @@ class ApiClient {
       return _handleResponse(response, retryPath: path, retryMethod: 'GET', authenticated: authenticated);
     } on TimeoutException {
       throw ApiException('Tiempo de espera agotado. Verifica tu conexión y que el backend esté levantado.');
-    } on SocketException {
+    } catch (e) {
       throw ApiException('No se pudo conectar al servidor. Verifica que el backend esté levantado (${AppConfig.baseUrl}).');
-    } on HandshakeException {
-      throw ApiException('No se pudo establecer una conexión segura con el servidor.');
     }
   }
 
@@ -81,10 +78,8 @@ class ApiClient {
       );
     } on TimeoutException {
       throw ApiException('Tiempo de espera agotado. Verifica tu conexión y que el backend esté levantado.');
-    } on SocketException {
+    } catch (e) {
       throw ApiException('No se pudo conectar al servidor. Verifica que el backend esté levantado (${AppConfig.baseUrl}).');
-    } on HandshakeException {
-      throw ApiException('No se pudo establecer una conexión segura con el servidor.');
     }
   }
 

@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:excel/excel.dart' as xl;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
@@ -11,6 +8,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/network/api_client.dart';
 import '../services/reportes_service.dart';
 import '../services/voice_service.dart';
+
+import 'dart:typed_data' show Uint8List;
 
 /// Pestañas disponibles en la pantalla de reportes.
 enum ReporteTab { ventas, turnos, clientes, sucursales, islas }
@@ -95,7 +94,8 @@ class ReportesController extends ChangeNotifier {
           _currentData = await _reportesService.getClientes(filtros: _filtros);
           break;
         case ReporteTab.sucursales:
-          _currentData = await _reportesService.getSucursales(filtros: _filtros);
+          _currentData =
+              await _reportesService.getSucursales(filtros: _filtros);
           break;
         case ReporteTab.islas:
           _currentData = await _reportesService.getIslas(filtros: _filtros);
@@ -134,7 +134,8 @@ class ReportesController extends ChangeNotifier {
           }
         },
         onDone: () {
-          if (_voiceState == VoiceState.listening && _recognizedText.trim().isNotEmpty) {
+          if (_voiceState == VoiceState.listening &&
+              _recognizedText.trim().isNotEmpty) {
             _processVoiceCommand(_recognizedText.trim());
           } else if (_voiceState == VoiceState.listening) {
             _voiceState = VoiceState.error;
@@ -176,7 +177,7 @@ class ReportesController extends ChangeNotifier {
 
       // Cargar el reporte con los filtros interpretados.
       await loadReporte();
-      
+
       // Exportar a PDF automáticamente por defecto, tal como lo hace la versión web.
       await exportToPdf();
     } on ApiException catch (e) {
@@ -225,7 +226,15 @@ class ReportesController extends ChangeNotifier {
     if (data.containsKey('data') && data['data'] is List) {
       return (data['data'] as List).cast<Map<String, dynamic>>();
     }
-    final keys = ['turnos', 'por_combustible', 'ranking_clientes', 'ventas', 'clientes', 'sucursales', 'islas'];
+    final keys = [
+      'turnos',
+      'por_combustible',
+      'ranking_clientes',
+      'ventas',
+      'clientes',
+      'sucursales',
+      'islas'
+    ];
     for (final key in keys) {
       if (data.containsKey(key) && data[key] is List) {
         return (data[key] as List).cast<Map<String, dynamic>>();
@@ -286,8 +295,11 @@ class ReportesController extends ChangeNotifier {
         build: (context) => [
           pw.TableHelper.fromTextArray(
             headers: headers,
-            data: rows.map((r) => headers.map((h) => r[h]?.toString() ?? '').toList()).toList(),
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8),
+            data: rows
+                .map((r) => headers.map((h) => r[h]?.toString() ?? '').toList())
+                .toList(),
+            headerStyle:
+                pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8),
             cellStyle: const pw.TextStyle(fontSize: 7),
             cellAlignment: pw.Alignment.centerLeft,
           ),
@@ -334,13 +346,14 @@ class ReportesController extends ChangeNotifier {
   }
 
   Future<void> _shareFile(List<int> bytes, String fileName) async {
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsBytes(bytes);
-
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      subject: 'Reporte - SurtidorBolivia',
-    );
+    try {
+      // Usar XFile.fromData que es compatible con todas las plataformas
+      await Share.shareXFiles(
+        [XFile.fromData(Uint8List.fromList(bytes), name: fileName)],
+        subject: 'Reporte - SurtidorBolivia',
+      );
+    } catch (e) {
+      print('Error al compartir archivo: $e');
+    }
   }
 }
