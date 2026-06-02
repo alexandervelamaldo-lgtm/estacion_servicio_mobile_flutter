@@ -148,6 +148,36 @@ class ApiClient {
     throw ApiException('No se pudo completar la solicitud.', statusCode: response.statusCode);
   }
 
+  Future<List<int>> downloadBytes(String path, {bool authenticated = false}) async {
+    try {
+      final response = await http
+          .get(
+            _uri(path),
+            headers: await _headers(authenticated: authenticated),
+          )
+          .timeout(_requestTimeout);
+
+      if (response.statusCode == 401 && authenticated) {
+        final refreshed = await _refreshToken();
+        if (refreshed) {
+          return downloadBytes(path, authenticated: true);
+        }
+      }
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return response.bodyBytes;
+      }
+
+      throw ApiException('Error al descargar el archivo. HTTP ${response.statusCode}', statusCode: response.statusCode);
+    } on TimeoutException {
+      throw ApiException('Tiempo de espera agotado. Verifica tu conexión.');
+    } on SocketException {
+      throw ApiException('No se pudo conectar al servidor.');
+    } on HandshakeException {
+      throw ApiException('No se pudo establecer una conexión segura con el servidor.');
+    }
+  }
+
   Future<bool> _refreshToken() async {
     final refreshToken = await _sessionStorage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {

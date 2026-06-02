@@ -10,8 +10,10 @@ class AppConfig {
     'API_BASE_URL',
     defaultValue: '',
   );
-  static const String emulatorBaseUrl = 'http://10.0.2.2:8000/api';
-  static const String localNetworkExample = 'http://192.168.1.10:8000/api';
+  static const String emulatorBaseUrl = 'http://192.168.100.30:8000/api';
+  //static const String emulatorBaseUrl = 'http://10.0.2.2:8000/api';
+  //static const String localNetworkExample = 'http://192.168.1.10:8000/api';
+  static const String localNetworkExample = 'http://192.168.100.30:8000/api';
 
   static AppEnvironment get environment {
     switch (_environmentValue) {

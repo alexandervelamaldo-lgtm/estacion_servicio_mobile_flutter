@@ -100,12 +100,76 @@ class _HomeScreenState extends State<HomeScreen> {
                     user?.email ?? '',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                   ),
-                  const SizedBox(height: 18),
-                  Text(
-                    'API ${AppConfig.baseUrl}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white54),
-                  ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // ── CTA Prepago ──
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, AppRoutes.prepago),
+              child: Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF00C989), Color(0xFF00A070)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.secondary.withValues(alpha: 0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.local_gas_station_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Comprar Combustible Prepago',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Paga con tarjeta y recoge en estación',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.white70,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -118,16 +182,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, AppRoutes.purchase),
-                    icon: const Icon(Icons.add_shopping_cart_rounded),
-                    label: const Text('Registrar compra'),
-                  ),
-                  const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, AppRoutes.history),
-                    icon: const Icon(Icons.receipt_long_rounded),
-                    label: const Text('Ver historial'),
+                    onPressed: () => Navigator.pushNamed(context, AppRoutes.prepagoHistory),
+                    icon: const Icon(Icons.history_rounded),
+                    label: const Text('Mis compras prepago'),
                   ),
                   if (user?.isStaff == true || user?.isSuperuser == true) ...[
                     const SizedBox(height: 12),

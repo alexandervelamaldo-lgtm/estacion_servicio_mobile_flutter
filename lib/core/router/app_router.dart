@@ -6,6 +6,8 @@ import '../../features/auth/screens/splash_screen.dart';
 import '../../features/compras/screens/home_screen.dart';
 import '../../features/compras/screens/purchase_history_screen.dart';
 import '../../features/compras/screens/purchase_screen.dart';
+import '../../features/prepago/screens/prepago_history_screen.dart';
+import '../../features/prepago/screens/prepago_wizard_screen.dart';
 import '../../features/reportes/screens/reportes_screen.dart';
 
 class AppRoutes {
@@ -16,6 +18,8 @@ class AppRoutes {
   static const purchase = '/purchase';
   static const history = '/history';
   static const reportes = '/reportes';
+  static const prepago = '/prepago';
+  static const prepagoHistory = '/prepago-history';
 }
 
 class AppRouter {
@@ -35,8 +39,13 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const PurchaseHistoryScreen());
       case AppRoutes.reportes:
         return MaterialPageRoute(builder: (_) => const ReportesScreen());
+      case AppRoutes.prepago:
+        return MaterialPageRoute(builder: (_) => const PrepagoWizardScreen());
+      case AppRoutes.prepagoHistory:
+        return MaterialPageRoute(builder: (_) => const PrepagoHistoryScreen());
       default:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
     }
   }
 }
+
