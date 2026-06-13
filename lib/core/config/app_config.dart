@@ -29,8 +29,7 @@ class AppConfig {
 
   switch (environment) {
     case AppEnvironment.production:
-      // return 'https://backend-176137264021.us-central1.run.app/api';
-      return 'https://api.surtidorbolivia.com/api';
+  return 'https://backend-176137264021.us-central1.run.app/api';
     case AppEnvironment.development:
       return emulatorBaseUrl; // http://10.0.2.2:8000/api
   }
