@@ -1,101 +1,217 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-import 'core/config/app_config.dart';
-import 'core/network/api_client.dart';
-import 'core/router/app_router.dart';
-import 'core/storage/session_storage.dart';
-import 'core/theme/app_theme.dart';
-import 'features/asistente/services/asistente_service.dart';
-import 'features/asistente/services/speech_input_service.dart';
-import 'features/asistente/state/asistente_controller.dart';
-import 'features/auth/services/auth_service.dart';
-import 'features/auth/state/auth_controller.dart';
-import 'features/compras/services/purchase_service.dart';
-import 'features/compras/state/purchase_controller.dart';
-import 'features/reportes/services/reportes_service.dart';
-import 'features/reportes/services/voice_service.dart';
-import 'features/reportes/state/reportes_controller.dart';
-import 'features/monitoreo/services/monitoreo_service.dart';
-import 'features/monitoreo/state/monitoreo_controller.dart';
-import 'features/inventario/services/inventario_service.dart';
-import 'features/inventario/state/inventario_controller.dart';
+import '../../../core/config/app_config.dart';
+import '../../../core/router/app_router.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/section_card.dart';
+import '../../auth/state/auth_controller.dart';
+import '../state/purchase_controller.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  OneSignal.initialize('c1ec0c61-fb3a-4c87-8667-1107a403ed11');
-await OneSignal.Notifications.requestPermission(true);
-final state = await OneSignal.Notifications.permission;
-print('OneSignal permission state: $state');
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
-  final sessionStorage = SessionStorage();
-  final apiClient = ApiClient(sessionStorage);
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthController(AuthService(apiClient, sessionStorage))
-            ..bootstrap(),
-        ),
-        ChangeNotifierProxyProvider<AuthController, PurchaseController>(
-          create: (_) => PurchaseController(PurchaseService(apiClient)),
-          update: (_, authController, purchaseController) {
-            final controller = purchaseController ??
-                PurchaseController(PurchaseService(apiClient));
-            controller.bindSession(authController.user);
-            return controller;
-          },
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ReportesController(
-            ReportesService(apiClient),
-            VoiceService(apiClient),
-          ),
-        ),
-        // Dentro de MultiProvider, agrega:
-        ChangeNotifierProvider(
-          create: (_) => MonitoreoController(MonitoreoService(apiClient)),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => InventarioController(InventarioService(apiClient)),
-        ),
-        // El asistente IA se reinicia al cambiar de usuario (privacidad), igual
-        // que la versión web: no se expone el historial de otra sesión.
-        ChangeNotifierProxyProvider<AuthController, AsistenteController>(
-          create: (_) => AsistenteController(
-            AsistenteService(apiClient),
-            SpeechInputService(),
-          ),
-          update: (_, authController, asistenteController) {
-            final controller = asistenteController ??
-                AsistenteController(
-                  AsistenteService(apiClient),
-                  SpeechInputService(),
-                );
-            controller.bindSession(authController.user);
-            return controller;
-          },
-        ),
-      ],
-      child: const SurtidorBoliviaMobileApp(),
-    ),
-  );
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class SurtidorBoliviaMobileApp extends StatelessWidget {
-  const SurtidorBoliviaMobileApp({super.key});
+class _HomeScreenState extends State<HomeScreen> {
+  Timer? _catalogRefreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PurchaseController>().loadCatalog();
+    });
+    _catalogRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) {
+        return;
+      }
+      final controller = context.read<PurchaseController>();
+      if (!controller.loadingCatalog) {
+        controller.loadCatalog(force: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _catalogRefreshTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConfig.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      onGenerateRoute: AppRouter.onGenerateRoute,
-      initialRoute: AppRoutes.splash,
+    final authController = context.watch<AuthController>();
+    final purchaseController = context.watch<PurchaseController>();
+    final user = authController.user;
+    final catalog = purchaseController.catalog;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SurtidorBolivia'),
+        actions: [
+          IconButton(
+            onPressed: authController.submitting
+                ? null
+                : () async {
+                    await context.read<AuthController>().logout();
+                    if (!context.mounted) {
+                      return;
+                    }
+                    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
+                  },
+            icon: const Icon(Icons.logout_rounded),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final controller = context.read<PurchaseController>();
+          await controller.loadCatalog(force: true);
+          await controller.loadPurchases();
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primary, Color(0xFF153259)],
+                ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Bienvenido, ${user?.nombre ?? 'Usuario'}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    user?.email ?? '',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'API ${AppConfig.baseUrl}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white54),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SectionCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Acciones rápidas',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, AppRoutes.purchase),
+                    icon: const Icon(Icons.add_shopping_cart_rounded),
+                    label: const Text('Registrar compra'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, AppRoutes.history),
+                    icon: const Icon(Icons.receipt_long_rounded),
+                    label: const Text('Ver historial'),
+                  ),
+                  if (user?.isStaff == true || user?.isSuperuser == true || user?.rol == 'administrador' || user?.rol == 'gerente') ...[
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, AppRoutes.reportes),
+                      icon: const Icon(Icons.insights_rounded),
+                      label: const Text('Reportes e Inteligencia'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.secondary,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, AppRoutes.asistente),
+                      icon: const Icon(Icons.auto_awesome_rounded),
+                      label: const Text('Asistente IA'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accent,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Combustibles disponibles',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 12),
+            if (purchaseController.loadingCatalog)
+              const Center(child: Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              ))
+            else if (catalog.isEmpty)
+              SectionCard(
+                child: Text(
+                  purchaseController.errorMessage ?? 'No se pudo cargar el catálogo.',
+                ),
+              )
+            else
+              ...catalog.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: SectionCard(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppTheme.secondary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.local_gas_station_rounded, color: AppTheme.secondary),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.nombre,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 4),
+                              Text('${item.unidad} · Bs ${item.precioUnitario.toStringAsFixed(2)}'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
