@@ -9,6 +9,10 @@ import '../../features/compras/screens/purchase_screen.dart';
 import '../../features/prepago/screens/prepago_history_screen.dart';
 import '../../features/prepago/screens/prepago_wizard_screen.dart';
 import '../../features/reportes/screens/reportes_screen.dart';
+import '../../features/dashboard/screens/admin_dashboard_screen.dart';
+import '../../features/monitoreo/screens/monitoreo_screen.dart';
+import '../../features/inventario/screens/inventario_screen.dart';
+import '../../features/home/screens/main_layout.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -20,6 +24,11 @@ class AppRoutes {
   static const reportes = '/reportes';
   static const prepago = '/prepago';
   static const prepagoHistory = '/prepago-history';
+  
+  static const monitoreo = '/monitoreo';
+  static const adminDashboard = '/dashboard';
+  static const inventario = '/inventario';
+  static const mainLayout = '/main';
 }
 
 class AppRouter {
@@ -31,6 +40,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case AppRoutes.register:
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
+      case AppRoutes.mainLayout:
+        return MaterialPageRoute(builder: (_) => const MainLayout());
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
       case AppRoutes.purchase:
@@ -43,9 +54,15 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const PrepagoWizardScreen());
       case AppRoutes.prepagoHistory:
         return MaterialPageRoute(builder: (_) => const PrepagoHistoryScreen());
+      case AppRoutes.monitoreo:
+        return MaterialPageRoute(builder: (_) => const MonitoreoScreen());
+      case AppRoutes.adminDashboard:
+       return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
+       case AppRoutes.inventario:
+        return MaterialPageRoute(builder: (_) => const InventarioScreen());
+
       default:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
     }
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import 'core/config/app_config.dart';
 import 'core/network/api_client.dart';
@@ -16,11 +17,22 @@ import 'features/prepago/state/prepago_controller.dart';
 import 'features/reportes/services/reportes_service.dart';
 import 'features/reportes/services/voice_service.dart';
 import 'features/reportes/state/reportes_controller.dart';
+import 'features/monitoreo/services/monitoreo_service.dart';
+import 'features/monitoreo/state/monitoreo_controller.dart';
+import 'features/inventario/services/inventario_service.dart';
+import 'features/inventario/state/inventario_controller.dart';
+import 'features/perfil/services/profile_service.dart';
+import 'features/perfil/state/profile_controller.dart';
+import 'features/dashboard/services/dashboard_service.dart';
+import 'features/dashboard/state/dashboard_controller.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar Stripe con la clave pública de prueba.
+  OneSignal.initialize('c1ec0c61-fb3a-4c87-8667-1107a403ed11');
+  await OneSignal.Notifications.requestPermission(true);
+  final state = OneSignal.Notifications.permission;
+
   Stripe.publishableKey =
       'pk_test_51TNvrQDe1EbPeXeBixY8e7HDgNYN50bZQ1TA4173nShEEaZ4wLG79EbCR4CiV000OefzFlD3vq1NsBm88OnADdtp00vRTDFePe';
 
@@ -31,12 +43,14 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthController(AuthService(apiClient, sessionStorage))..bootstrap(),
+          create: (_) => AuthController(AuthService(apiClient, sessionStorage))
+            ..bootstrap(),
         ),
         ChangeNotifierProxyProvider<AuthController, PurchaseController>(
           create: (_) => PurchaseController(PurchaseService(apiClient)),
           update: (_, authController, purchaseController) {
-            final controller = purchaseController ?? PurchaseController(PurchaseService(apiClient));
+            final controller = purchaseController ??
+                PurchaseController(PurchaseService(apiClient));
             controller.bindSession(authController.user);
             return controller;
           },
@@ -49,6 +63,18 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => PrepagoController(PrepagoService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MonitoreoController(MonitoreoService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => InventarioController(InventarioService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProfileController(ProfileService(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DashboardController(DashboardService(apiClient)),
         ),
       ],
       child: const SurtidorBoliviaMobileApp(),

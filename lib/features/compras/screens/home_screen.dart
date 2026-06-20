@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/config/app_config.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/section_card.dart';
@@ -18,28 +15,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Timer? _catalogRefreshTimer;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PurchaseController>().loadCatalog();
     });
-    _catalogRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (!mounted) {
-        return;
-      }
-      final controller = context.read<PurchaseController>();
-      if (!controller.loadingCatalog) {
-        controller.loadCatalog(force: true);
-      }
-    });
   }
 
   @override
   void dispose() {
-    _catalogRefreshTimer?.cancel();
     super.dispose();
   }
 
@@ -70,9 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          final controller = context.read<PurchaseController>();
-          await controller.loadCatalog(force: true);
-          await controller.loadPurchases();
+          await context.read<PurchaseController>().loadCatalog(force: true);
         },
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -172,37 +155,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            SectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Acciones rápidas',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, AppRoutes.prepagoHistory),
-                    icon: const Icon(Icons.history_rounded),
-                    label: const Text('Mis compras prepago'),
-                  ),
-                  if (user?.isStaff == true || user?.isSuperuser == true) ...[
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: () => Navigator.pushNamed(context, AppRoutes.reportes),
-                      icon: const Icon(Icons.insights_rounded),
-                      label: const Text('Reportes e Inteligencia'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.secondary,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+            // Acciones rápidas removidas en favor del BottomNavigationBar
+            const SizedBox(height: 24),
             Text(
               'Combustibles disponibles',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),

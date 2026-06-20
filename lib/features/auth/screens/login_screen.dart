@@ -41,13 +41,26 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    if (success) {
-      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (_) => false);
-      return;
-    }
+  if (success) {
+  final user = authController.user;
+  final isSuperuser = user?.isSuperuser ?? false;
+
+  if (isSuperuser) {
+    await authController.logout();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('El SuperAdmin no tiene acceso a la app móvil.')),
+    );
+    return;
+  }
+
+  Navigator.pushNamedAndRemoveUntil(context, AppRoutes.mainLayout, (_) => false);
+  return;
+}
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(authController.errorMessage ?? 'No se pudo iniciar sesión.')),
+      SnackBar(
+          content: Text(
+              authController.errorMessage ?? 'No se pudo iniciar sesión.')),
     );
   }
 
@@ -76,7 +89,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Text(
                           'Iniciar sesión',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),
                         ),
@@ -111,9 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             labelText: 'Contraseña',
                             prefixIcon: const Icon(Icons.lock_outline_rounded),
                             suffixIcon: IconButton(
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                                _obscurePassword
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.visibility_rounded,
                               ),
                             ),
                           ),
@@ -131,14 +150,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2.5),
                                 )
                               : const Text('Ingresar'),
                         ),
                         const SizedBox(height: 16),
                         TextButton(
-                          onPressed: () => Navigator.pushNamed(context, AppRoutes.register),
-                          child: const Text('¿No tienes cuenta? Crear una nueva'),
+                          onPressed: () =>
+                              Navigator.pushNamed(context, AppRoutes.register),
+                          child:
+                              const Text('¿No tienes cuenta? Crear una nueva'),
                         ),
                       ],
                     ),

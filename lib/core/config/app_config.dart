@@ -10,6 +10,7 @@ class AppConfig {
     'API_BASE_URL',
     defaultValue: '',
   );
+
   static const String emulatorBaseUrl = 'http://192.168.100.30:8000/api';
   //static const String emulatorBaseUrl = 'http://10.0.2.2:8000/api';
   //static const String localNetworkExample = 'http://192.168.1.10:8000/api';
@@ -25,17 +26,17 @@ class AppConfig {
   }
 
   static String get baseUrl {
-    if (_explicitBaseUrl.isNotEmpty) {
-      return _explicitBaseUrl;
-    }
-
-    switch (environment) {
-      case AppEnvironment.production:
-        return 'https://api.surtidorbolivia.com/api';
-      case AppEnvironment.development:
-        return emulatorBaseUrl;
-    }
+  if (_explicitBaseUrl.isNotEmpty) {
+    return _explicitBaseUrl;
   }
+
+  switch (environment) {
+    case AppEnvironment.production:
+  return 'https://backend-176137264021.us-central1.run.app/api';
+    case AppEnvironment.development:
+      return emulatorBaseUrl; // http://10.0.2.2:8000/api
+  }
+}
 
   static String get environmentName {
     return environment == AppEnvironment.production ? 'production' : 'development';

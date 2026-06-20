@@ -88,6 +88,35 @@ class ApiClient {
     }
   }
 
+  Future<dynamic> patch(
+    String path, {
+    Map<String, dynamic>? body,
+    bool authenticated = false,
+  }) async {
+    try {
+      final response = await http
+          .patch(
+            _uri(path),
+            headers: await _headers(authenticated: authenticated),
+            body: jsonEncode(body ?? <String, dynamic>{}),
+          )
+          .timeout(_requestTimeout);
+      return _handleResponse(
+        response,
+        retryPath: path,
+        retryMethod: 'PATCH',
+        retryBody: body,
+        authenticated: authenticated,
+      );
+    } on TimeoutException {
+      throw ApiException('Tiempo de espera agotado. Verifica tu conexión y que el backend esté levantado.');
+    } on SocketException {
+      throw ApiException('No se pudo conectar al servidor. Verifica que el backend esté levantado (${AppConfig.baseUrl}).');
+    } on HandshakeException {
+      throw ApiException('No se pudo establecer una conexión segura con el servidor.');
+    }
+  }
+
   Future<dynamic> _handleResponse(
     http.Response response, {
     required String retryPath,
@@ -100,6 +129,9 @@ class ApiClient {
       if (refreshed) {
         if (retryMethod == 'GET') {
           return get(retryPath, authenticated: true);
+        }
+        if (retryMethod == 'PATCH') {
+          return patch(retryPath, body: retryBody, authenticated: true);
         }
         return post(retryPath, body: retryBody, authenticated: true);
       }
